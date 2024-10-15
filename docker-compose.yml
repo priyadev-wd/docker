@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: cakephp_app
+    ports:
+      - "8080:80"  # Map port 8080 on your machine to port 80 in the container
+    volumes:
+      - .:/var/www/html  # Mount the current directory into the container
+    depends_on:
+      - db
+
+  db:
+    image: mysql:5.7
+    container_name: cakephp_db
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: cakephp_db
+      MYSQL_USER: cakephp_user
+      MYSQL_PASSWORD: cakephp_password
+    ports:
+      - "3306:3306"  # Map port 3306 for MySQL
+    volumes:
+      - db_data:/var/lib/mysql  # Persist database data
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin
+    environment:
+      PMA_HOST: db  # The hostname to connect to the MySQL database
+      PMA_USER: cakephp_user
+      PMA_PASSWORD: cakephp_password
+      MYSQL_ROOT_PASSWORD: rootpassword
+    ports:
+      - "8081:80"  # Map port 8081 on your machine to port 80 in the phpMyAdmin container
+    depends_on:
+      - db
+
+volumes:
+  db_data:
